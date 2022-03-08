@@ -2,25 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, Alert, TextInput } from 'react-native';
 import { RootStackParams } from '../types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../components/UI/CustomButton';
-import SQLite from 'react-native-sqlite-storage';
-
-const db = SQLite.openDatabase(
-  {
-    name: 'MainDB',
-    location: 'default',
-  },
-  () => {},
-  (error) => {
-    console.log(error);
-  }
-);
+import { useDispatch, useSelector } from 'react-redux';
+import { setName, setAge, increaseAge } from '../redux/actions';
 
 type Props = NativeStackScreenProps<RootStackParams, 'Home'>;
 
 export const Home = ({ navigation }: Props) => {
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
+  // @ts-ignore
+  const { name, age } = useSelector((state) => state.userReducer);
+  const dispatch = useDispatch();
+  // const [name, setName] = useState('');
+  // const [age, setAge] = useState('');
 
   useEffect(() => {
     getData();
@@ -28,72 +22,47 @@ export const Home = ({ navigation }: Props) => {
 
   const getData = () => {
     try {
-      // AsyncStorage.getItem('UserData')
-      //     .then(value => {
-      //         if (value != null) {
-      //             let user = JSON.parse(value);
-      //             setName(user.Name);
-      //             setAge(user.Age);
-      //         }
-      //     })
-      db.transaction((tx) => {
-        tx.executeSql('SELECT Name, Age FROM Users', [], (tx, results) => {
-          const len = results.rows.length;
-          if (len > 0) {
-            const userName = results.rows.item(0).Name;
-            const userAge = results.rows.item(0).Age;
-            setName(userName);
-            setAge(userAge);
-          }
-        });
-      });
+      // AsyncStorage.getItem('UserData').then((value) => {
+      //   if (value !== null) {
+      //     let user = JSON.parse(value);
+      //     setName(user.Name);
+      //     setAge(user.Age);
+      // }
+      // });
+      dispatch(setName(name));
+      dispatch(setAge(age));
     } catch (error) {
       console.log(error);
     }
   };
-
   const updateData = async () => {
-    if (name.length == 0) {
-      Alert.alert('Warning!', 'Please write your data.');
+    if (name.length === 0) {
+      Alert.alert('Warning', 'Please write your name.');
     } else {
       try {
-        db.transaction((tx) => {
-          tx.executeSql(
-            'UPDATE Users SET Name=?',
-            [name],
-            () => {
-              Alert.alert('Success!', 'Your data has been updated.');
-            },
-            (error) => {
-              console.log(error);
-            }
-          );
-        });
+        dispatch(setName(name));
+        dispatch(setAge(age));
+        // const user = {
+        //   Name: name,
+        // };
+        // await AsyncStorage.mergeItem('UserData', JSON.stringify(user));
+        // Alert.alert('Success!', 'You have updated your name!');
       } catch (error) {
         console.log(error);
       }
     }
   };
-
   const removeData = async () => {
     try {
       // await AsyncStorage.clear();
-      db.transaction((tx) => {
-        tx.executeSql(
-          'DELETE FROM Users',
-          [],
-          () => {
-            navigation.navigate('Login', {});
-          },
-          (error) => {
-            console.log(error);
-          }
-        );
-      });
+      dispatch(setName(''));
+      dispatch(setAge(''));
+      navigation.navigate('Login', {});
     } catch (error) {
       console.log(error);
     }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.containerText}>Welcome {name} !</Text>
@@ -103,7 +72,7 @@ export const Home = ({ navigation }: Props) => {
         style={styles.input}
         value={name}
         onChangeText={(value) => {
-          setName(value);
+          dispatch(setName(value));
         }}
       />
       <CustomButton
@@ -115,6 +84,13 @@ export const Home = ({ navigation }: Props) => {
         title='Remove'
         color='#f4010f'
         onPressFunction={removeData}
+      />
+      <CustomButton
+        title='Increase Age'
+        color='#0080ff'
+        onPressFunction={() => {
+          dispatch(increaseAge(age));
+        }}
       />
     </View>
   );

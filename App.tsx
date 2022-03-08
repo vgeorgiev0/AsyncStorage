@@ -4,6 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 // import MainNavigator from './navigation/MainNavigator';
 import StackNavigator from './navigation/StackNavigation';
 import { useFonts } from 'expo-font';
+import { Provider } from 'react-redux';
+import { Store } from './redux/store';
 
 export default function App() {
   const [loaded] = useFonts({
@@ -15,8 +17,10 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <StackNavigator />
-    </NavigationContainer>
+    <Provider store={Store}>
+      <NavigationContainer>
+        <StackNavigator />
+      </NavigationContainer>
+    </Provider>
   );
 }
