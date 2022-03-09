@@ -1,23 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Text, Alert, TextInput } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Alert,
+  TextInput,
+  FlatList,
+} from 'react-native';
 import { RootStackParams } from '../types';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../components/UI/CustomButton';
 import { useDispatch, useSelector } from 'react-redux';
-import { setName, setAge, increaseAge } from '../redux/actions';
+import { setName, setAge, increaseAge, getCities } from '../redux/actions';
 
 type Props = NativeStackScreenProps<RootStackParams, 'Home'>;
 
 export const Home = ({ navigation }: Props) => {
   // @ts-ignore
-  const { name, age } = useSelector((state) => state.userReducer);
+  const { name, age, cities } = useSelector((state) => state.userReducer);
   const dispatch = useDispatch();
   // const [name, setName] = useState('');
   // const [age, setAge] = useState('');
 
   useEffect(() => {
     getData();
+    dispatch(getCities());
   }, []);
 
   const getData = () => {
@@ -66,31 +74,15 @@ export const Home = ({ navigation }: Props) => {
   return (
     <View style={styles.container}>
       <Text style={styles.containerText}>Welcome {name} !</Text>
-      <Text style={styles.containerText}>Your age is {age}.</Text>
-      <TextInput
-        placeholder='Enter your name'
-        style={styles.input}
-        value={name}
-        onChangeText={(value) => {
-          dispatch(setName(value));
-        }}
-      />
-      <CustomButton
-        title='Update'
-        color='#ff7f00'
-        onPressFunction={updateData}
-      />
-      <CustomButton
-        title='Remove'
-        color='#f4010f'
-        onPressFunction={removeData}
-      />
-      <CustomButton
-        title='Increase Age'
-        color='#0080ff'
-        onPressFunction={() => {
-          dispatch(increaseAge(age));
-        }}
+      <FlatList
+        data={cities}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Text style={styles.title}>{item.country}</Text>
+            <Text style={styles.subtitle}>{item.city}</Text>
+          </View>
+        )}
+        keyExtractor={(item, index) => index.toString()}
       />
     </View>
   );
@@ -116,5 +108,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 25,
     marginBottom: 10,
+  },
+  item: {
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    margin: 7,
+    width: 350,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 30,
+    margin: 10,
+  },
+  subtitle: {
+    fontSize: 20,
+    margin: 10,
+    color: '#999',
   },
 });

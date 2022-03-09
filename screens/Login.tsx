@@ -55,10 +55,6 @@ const Login = (props: Props) => {
 
   return (
     <View style={styles.body}>
-      <Image
-        style={styles.logo}
-        source={require('../assets/images/redux.png')}
-      />
       <Text style={styles.text}>Redux</Text>
       <TextInput
         placeholder='Enter your name'
@@ -108,3 +104,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
+
+[
+  { country: 'Bulgaria', city: 'Sofia' },
+  { country: 'Serbia', city: 'Beograd' },
+  { country: 'Greece', city: 'Athens' },
+  { country: 'Germany', city: 'Berlin' },
+  { country: 'France', city: 'Paris' },
+  { country: 'United Kingdom', city: 'London' },
+];
